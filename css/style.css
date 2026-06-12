@@ -200,6 +200,12 @@ html, body {
   position: relative;
 }
 .rescard .ic { font-size: 1.25rem; }
+.rescard .ic svg { display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.res-pick .ic svg { display: block; }
+.counter-row .label svg { flex: none; }
+.cost { display: flex; gap: 1px; align-items: center; }
+.cost svg, .rate svg, p svg, h2 svg, .btn svg { vertical-align: -3px; }
+.rate { display: inline-flex; align-items: center; gap: 2px; margin-right: 6px; font-weight: 700; }
 .rescard .ct {
   position: absolute; top: -6px; right: -6px; background: #fff; color: var(--ink);
   border-radius: 999px; min-width: 20px; height: 20px; display: grid; place-items: center;
@@ -215,7 +221,7 @@ html, body {
   cursor: grab; box-shadow: 0 2px 0 rgba(0,0,0,.2);
   width: 64px; touch-action: none; position: relative;
 }
-.tray-piece svg { width: 30px; height: 26px; }
+.tray-piece svg { width: 30px; height: 28px; }
 .tray-piece .cost { font-size: .55rem; line-height: 1; }
 .tray-piece .left {
   position: absolute; top: -6px; right: -6px; background: var(--panel-dark); color: #fff;

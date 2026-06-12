@@ -5,14 +5,15 @@ import { HEX_SIZE } from './board.js';
 import * as G from './game.js';
 import * as AI from './ai.js';
 import { sfx } from './sfx.js';
+import { ICON_INNER, PIECE_INNER, TERRAIN_ART, resIcon, pieceIcon } from './icons.js';
 
 const TERRAIN_STYLE = {
-  hills: { fill: '#b5562e', icon: '🧱', name: 'Hills' },
-  forest: { fill: '#2e6b30', icon: '🌲', name: 'Forest' },
-  pasture: { fill: '#8fc15c', icon: '🐑', name: 'Pasture' },
-  fields: { fill: '#e2b33b', icon: '🌾', name: 'Fields' },
-  mountains: { fill: '#8a8f99', icon: '⛰️', name: 'Mountains' },
-  desert: { fill: '#d9c789', icon: '🏜️', name: 'Desert' },
+  hills: { fill: '#b5562e', name: 'Hills' },
+  forest: { fill: '#2e6b30', name: 'Forest' },
+  pasture: { fill: '#8fc15c', name: 'Pasture' },
+  fields: { fill: '#e2b33b', name: 'Fields' },
+  mountains: { fill: '#8a8f99', name: 'Mountains' },
+  desert: { fill: '#d9c789', name: 'Desert' },
 };
 
 let S = null;            // game state
@@ -83,11 +84,22 @@ function buildBoardSvg() {
     el('polygon', { points: hexPointsStr(t, 1), class: 'hex', fill: st.fill }, g);
     // subtle top highlight
     el('polygon', { points: hexPointsStr(t, 0.86), fill: 'rgba(255,255,255,.07)', stroke: 'none' }, g);
-    const icon = el('text', {
-      x: t.center.x, y: t.center.y - 22, 'text-anchor': 'middle',
-      'font-size': 20, style: 'pointer-events:none',
+    // terrain scenery (trees, peaks, dunes, …)
+    const art = el('g', {
+      transform: `translate(${t.center.x} ${t.center.y})`,
+      style: 'pointer-events:none',
     }, g);
-    icon.textContent = st.icon;
+    art.innerHTML = TERRAIN_ART[t.terrain];
+    // small badge showing which resource this tile produces
+    if (t.resource) {
+      const badge = el('g', {
+        transform: `translate(${t.center.x} ${t.center.y + 38})`,
+        style: 'pointer-events:none',
+      }, g);
+      el('circle', { cx: 0, cy: 0, r: 9.5, fill: '#f6efdd', stroke: '#8a6a3a', 'stroke-width': 1.4 }, badge);
+      const bi = el('g', { transform: 'translate(-7 -7) scale(.35)' }, badge);
+      bi.innerHTML = ICON_INNER[t.resource];
+    }
     g.addEventListener('click', () => onTileTap(t.id));
   }
 
@@ -101,9 +113,11 @@ function buildBoardSvg() {
     const g = el('g', { class: 'harbor' }, layers.harbors);
     el('line', { x1: ox, y1: oy, x2: v1.x, y2: v1.y }, g);
     el('line', { x1: ox, y1: oy, x2: v2.x, y2: v2.y }, g);
-    el('rect', { x: ox - 22, y: oy - 13, width: 44, height: 26, rx: 7, class: 'pad' }, g);
-    const label = el('text', { x: ox, y: oy + 4 }, g);
-    label.textContent = h.type === '3:1' ? '⚓ 3:1' : `${RESOURCE_INFO[h.type].icon} 2:1`;
+    el('rect', { x: ox - 23, y: oy - 13, width: 46, height: 26, rx: 7, class: 'pad' }, g);
+    const ic = el('g', { transform: `translate(${ox - 21} ${oy - 11}) scale(.55)` }, g);
+    ic.innerHTML = h.type === '3:1' ? ICON_INNER.anchor : ICON_INNER[h.type];
+    const label = el('text', { x: ox + 11, y: oy + 4 }, g);
+    label.textContent = h.type === '3:1' ? '3:1' : '2:1';
   }
 
   // number tokens
@@ -162,6 +176,7 @@ function drawRoad(eid, color, parent, ghost = false) {
     transform: `translate(${mx},${my}) rotate(${ang})`,
   }, parent);
   el('rect', { x: -len / 2, y: -4.5, width: len, height: 9, rx: 3, fill: color }, g);
+  el('rect', { x: -len / 2 + 1.6, y: -3.2, width: len - 3.2, height: 2.6, rx: 1.3, fill: '#fff', opacity: 0.3, stroke: 'none' }, g);
   return g;
 }
 
@@ -173,8 +188,16 @@ function drawBuilding(vid, type, color, parent, ghost = false) {
   }, parent);
   if (type === 'settlement') {
     el('path', { d: 'M 0 -13 L 10 -4 L 10 10 L -10 10 L -10 -4 Z', fill: color }, g);
+    el('path', { d: 'M 0 -13 L 10 -4 L -10 -4 Z', fill: '#000', opacity: 0.22, stroke: 'none' }, g);
+    el('rect', { x: -2.6, y: 3, width: 5.2, height: 7, rx: 1, fill: '#000', opacity: 0.32, stroke: 'none' }, g);
+    el('rect', { x: -8.7, y: -2.8, width: 2, height: 11.5, fill: '#fff', opacity: 0.18, stroke: 'none' }, g);
   } else {
     el('path', { d: 'M -13 12 L -13 -2 L -4 -2 L -4 -10 L 3 -16 L 10 -10 L 10 -2 L 13 -2 L 13 12 Z', fill: color }, g);
+    el('path', { d: 'M -4 -10 L 3 -16 L 10 -10 Z', fill: '#000', opacity: 0.26, stroke: 'none' }, g);
+    el('rect', { x: 0.6, y: -8, width: 4.8, height: 4.8, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
+    el('rect', { x: -9.8, y: 3.5, width: 4.4, height: 4.6, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
+    el('rect', { x: 5.4, y: 3.5, width: 4.4, height: 4.6, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
+    el('rect', { x: -11.9, y: -0.8, width: 1.8, height: 11.6, fill: '#fff', opacity: 0.16, stroke: 'none' }, g);
   }
   return g;
 }
@@ -274,13 +297,13 @@ function renderHand() {
     card.className = 'rescard';
     card.style.background = RESOURCE_INFO[r].color;
     card.style.opacity = n === 0 ? '0.35' : '1';
-    card.innerHTML = `<span class="ic">${RESOURCE_INFO[r].icon}</span><span class="ct">${showFull ? n : '?'}</span>`;
+    card.innerHTML = `<span class="ic">${resIcon(r, 28)}</span><span class="ct">${showFull ? n : '?'}</span>`;
     hand.appendChild(card);
   }
   const dev = document.createElement('div');
   dev.className = 'rescard';
   dev.style.background = '#5e35b1';
-  dev.innerHTML = `<span class="ic">🃏</span><span class="ct">${showFull ? p.devCards.length : '?'}</span>`;
+  dev.innerHTML = `<span class="ic">${resIcon('dev', 28)}</span><span class="ct">${showFull ? p.devCards.length : '?'}</span>`;
   hand.appendChild(dev);
 }
 
@@ -310,7 +333,7 @@ function renderTray() {
     const usable = isHumanTurn && c.left > 0 && (c.can || c.setupActive);
     elT.classList.toggle('disabled', !usable);
     elT.classList.toggle('affordable', usable);
-    elT.querySelector('svg').firstElementChild.setAttribute('fill', p.isAI ? '#999' : p.colorHex);
+    elT.querySelector('svg').style.color = p.isAI ? '#999' : p.colorHex;
   }
 }
 
@@ -634,12 +657,7 @@ function startDrag(piece, ev) {
   const color = cur().colorHex;
   const ghost = document.createElement('div');
   ghost.id = 'drag-ghost';
-  const shapes = {
-    road: `<svg viewBox="0 0 40 40"><rect x="4" y="15" width="32" height="10" rx="4" fill="${color}" stroke="rgba(0,0,0,.4)" stroke-width="1.5"/></svg>`,
-    settlement: `<svg viewBox="0 0 40 40"><path d="M20 5 L33 17 L33 34 L7 34 L7 17 Z" fill="${color}" stroke="rgba(0,0,0,.4)" stroke-width="1.5"/></svg>`,
-    city: `<svg viewBox="0 0 40 40"><path d="M5 34 L5 19 L14 19 L14 9 L22 3 L30 9 L30 19 L35 19 L35 34 Z" fill="${color}" stroke="rgba(0,0,0,.4)" stroke-width="1.5"/></svg>`,
-  };
-  ghost.innerHTML = shapes[piece];
+  ghost.innerHTML = pieceIcon(piece, 44, color);
   document.body.appendChild(ghost);
   ghost.style.left = ev.clientX + 'px';
   ghost.style.top = ev.clientY + 'px';
@@ -736,7 +754,7 @@ function showDiscardModal(playerId) {
   const sel = {};
   const rows = RESOURCES.filter((r) => p.resources[r] > 0).map((r) => `
     <div class="counter-row" data-res="${r}">
-      <span class="label"><span>${RESOURCE_INFO[r].icon}</span> ${RESOURCE_INFO[r].name} <small>(have ${p.resources[r]})</small></span>
+      <span class="label">${resIcon(r, 20)} ${RESOURCE_INFO[r].name} <small>(have ${p.resources[r]})</small></span>
       <button data-d="-1">−</button><span class="val">0</span><button data-d="1">+</button>
     </div>`).join('');
   showModal(`
@@ -816,7 +834,7 @@ function showDevModal() {
     ${rows}
     <div class="modal-actions">
       <button class="btn" id="dev-close">Close</button>
-      <button class="btn primary" id="dev-buy" ${affordable ? '' : 'disabled'}>Buy (🐑🌾⛏️)</button>
+      <button class="btn primary" id="dev-buy" ${affordable ? '' : 'disabled'}>Buy ${resIcon('wool', 15)}${resIcon('grain', 15)}${resIcon('ore', 15)}</button>
     </div>`);
   $('dev-close').onclick = closeModal;
   $('dev-buy').onclick = () => {
@@ -859,9 +877,9 @@ function pickResources(title, count, done) {
   const renderPicker = () => {
     const btns = RESOURCES.map((r) => `
       <button class="res-pick" data-res="${r}" style="background:${RESOURCE_INFO[r].color}">
-        <span class="ic">${RESOURCE_INFO[r].icon}</span>${RESOURCE_INFO[r].name}</button>`).join('');
+        <span class="ic">${resIcon(r, 26)}</span>${RESOURCE_INFO[r].name}</button>`).join('');
     showModal(`<h2>${title}</h2>
-      <p>${count - picks.length} pick${count - picks.length > 1 ? 's' : ''} remaining${picks.length ? ' — chosen: ' + picks.map((r) => RESOURCE_INFO[r].icon).join(' ') : ''}</p>
+      <p>${count - picks.length} pick${count - picks.length > 1 ? 's' : ''} remaining${picks.length ? ' — chosen: ' + picks.map((r) => resIcon(r, 16)).join(' ') : ''}</p>
       <div class="res-picker">${btns}</div>
       <div class="modal-actions"><button class="btn" id="rp-cancel">Cancel</button></div>`);
     $('rp-cancel').onclick = closeModal;
@@ -877,7 +895,7 @@ function pickResources(title, count, done) {
 // ---------- Trade ----------
 function showTradeModal() {
   const p = cur();
-  const rateInfo = RESOURCES.map((r) => `${RESOURCE_INFO[r].icon}${G.tradeRate(S, p.id, r)}:1`).join(' ');
+  const rateInfo = RESOURCES.map((r) => `<span class="rate">${resIcon(r, 16)}${G.tradeRate(S, p.id, r)}:1</span>`).join(' ');
   showModal(`
     <h2>⚖️ Trade</h2>
     <p>Your maritime rates: ${rateInfo}</p>
@@ -897,7 +915,7 @@ function showBankTrade() {
     const rate = G.tradeRate(S, p.id, r);
     const ok = p.resources[r] >= rate;
     return `<button class="res-pick" data-res="${r}" style="background:${RESOURCE_INFO[r].color}" ${ok ? '' : 'disabled'}>
-      <span class="ic">${RESOURCE_INFO[r].icon}</span>${rate}:1</button>`;
+      <span class="ic">${resIcon(r, 26)}</span>${rate}:1</button>`;
   }).join('');
   showModal(`<h2>🏦 Bank trade</h2><p>Give which resource? (your harbor rates shown)</p>
     <div class="res-picker">${giveBtns}</div>
@@ -907,8 +925,8 @@ function showBankTrade() {
     const give = b.dataset.res;
     const getBtns = RESOURCES.filter((r) => r !== give).map((r) => `
       <button class="res-pick" data-res="${r}" style="background:${RESOURCE_INFO[r].color}" ${S.bank[r] > 0 ? '' : 'disabled'}>
-        <span class="ic">${RESOURCE_INFO[r].icon}</span>${RESOURCE_INFO[r].name}</button>`).join('');
-    showModal(`<h2>🏦 Receive what?</h2><p>Trading ${G.tradeRate(S, p.id, give)} ${RESOURCE_INFO[give].icon} for 1…</p>
+        <span class="ic">${resIcon(r, 26)}</span>${RESOURCE_INFO[r].name}</button>`).join('');
+    showModal(`<h2>🏦 Receive what?</h2><p>Trading ${G.tradeRate(S, p.id, give)} ${resIcon(give, 16)} for 1…</p>
       <div class="res-picker">${getBtns}</div>
       <div class="modal-actions"><button class="btn" id="bt-cancel2">Cancel</button></div>`);
     $('bt-cancel2').onclick = closeModal;
@@ -929,7 +947,7 @@ function showPlayerTrade() {
     <p style="margin:8px 0 2px"><b>${label}</b></p>` +
     RESOURCES.map((r) => `
       <div class="counter-row" data-res="${r}" data-side="${label}">
-        <span class="label"><span>${RESOURCE_INFO[r].icon}</span> ${RESOURCE_INFO[r].name}</span>
+        <span class="label">${resIcon(r, 20)} ${RESOURCE_INFO[r].name}</span>
         <button data-d="-1">−</button><span class="val">0</span><button data-d="1">+</button>
       </div>`).join('');
   showModal(`
@@ -962,7 +980,7 @@ function showPlayerTrade() {
 
 function choosePartner(give, get) {
   const partners = S.players.filter((o) => o.id !== S.currentPlayer);
-  const fmt = (o) => Object.entries(o).filter(([, n]) => n > 0).map(([r, n]) => `${n}${RESOURCE_INFO[r].icon}`).join(' ') || '–';
+  const fmt = (o) => Object.entries(o).filter(([, n]) => n > 0).map(([r, n]) => `${n}${resIcon(r, 15)}`).join(' ') || '–';
   const btns = partners.map((o) => `
     <button class="partner-btn" data-pid="${o.id}">
       <span class="dot" style="background:${o.colorHex}"></span>
@@ -1047,6 +1065,14 @@ function exitGame() {
 // Static event wiring (called once)
 // ============================================================
 export function initUI() {
+  // Fill the build tray with piece artwork and cost icons.
+  for (const piece of ['road', 'settlement', 'city']) {
+    const tray = $('tray-' + piece);
+    tray.querySelector('svg').innerHTML = PIECE_INNER[piece];
+    const costEl = tray.querySelector('.cost');
+    costEl.innerHTML = costEl.dataset.cost.split(',').map((r) => resIcon(r, 11)).join('');
+  }
+
   initDrag();
 
   $('btn-roll').addEventListener('click', () => {

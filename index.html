@@ -56,16 +56,16 @@
       <div id="actions">
         <button id="btn-roll" class="btn primary">🎲 Roll</button>
         <div class="tray-piece" id="tray-road" data-piece="road" title="Drag a road onto the board">
-          <svg viewBox="0 0 40 40"><rect x="6" y="16" width="28" height="8" rx="3"/></svg>
-          <span class="cost">🧱🪵</span><span class="left"></span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="brick,lumber"></span><span class="left"></span>
         </div>
         <div class="tray-piece" id="tray-settlement" data-piece="settlement" title="Drag a settlement onto the board">
-          <svg viewBox="0 0 40 40"><path d="M20 6 L32 17 L32 33 L8 33 L8 17 Z"/></svg>
-          <span class="cost">🧱🪵🐑🌾</span><span class="left"></span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="brick,lumber,wool,grain"></span><span class="left"></span>
         </div>
         <div class="tray-piece" id="tray-city" data-piece="city" title="Drag a city onto a settlement">
-          <svg viewBox="0 0 40 40"><path d="M6 33 L6 20 L14 20 L14 10 L22 4 L30 10 L30 20 L34 20 L34 33 Z"/></svg>
-          <span class="cost">🌾🌾⛏️⛏️⛏️</span><span class="left"></span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="grain,grain,ore,ore,ore"></span><span class="left"></span>
         </div>
         <button id="btn-dev" class="btn">🃏 Dev</button>
         <button id="btn-trade" class="btn">⚖️ Trade</button>

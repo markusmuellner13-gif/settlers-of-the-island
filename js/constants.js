@@ -69,7 +69,7 @@ export const RESOURCE_INFO = {
   lumber: { name: 'Lumber', color: '#3e7a3a', icon: '🪵' },
   wool: { name: 'Wool', color: '#9ccc65', icon: '🐑' },
   grain: { name: 'Grain', color: '#e6b422', icon: '🌾' },
-  ore: { name: 'Ore', color: '#7d8a99', icon: '⛏️' },
+  ore: { name: 'Ore', color: '#5d6a78', icon: '⛏️' },
 };
 
 export const DEV_INFO = {
