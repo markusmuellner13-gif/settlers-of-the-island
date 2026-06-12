@@ -312,42 +312,51 @@ html, body {
 .rescard.bump { animation: bump .4s ease; }
 @keyframes bump { 30% { transform: translateY(-8px) scale(1.12); } }
 
-#actions { display: flex; gap: 5px; justify-content: center; align-items: center; flex-wrap: wrap; }
-#actions .btn { padding: 9px 11px; }
+#actions { display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; }
+#actions .btn { padding: 9px clamp(8px, 3vw, 14px); font-size: clamp(.78rem, 2.4vw, .9rem); }
 
-/* Build tray pieces: compact horizontal cards inline with the action buttons —
-   piece art on the left, name + cost stacked on the right */
+/* Build row: the three piece fields share their own full-width line above
+   the buttons — horizontal cards, piece art left, name + cost right.
+   clamp() keeps them fitting from small phones up to tablets. */
+#build-row {
+  display: flex; gap: clamp(5px, 1.8vw, 10px);
+  justify-content: center; align-items: stretch;
+  margin-bottom: 7px;
+}
 .tray-piece {
   background: linear-gradient(#fffdf6, #efe5cb);
   border: 1px solid rgba(122, 90, 43, .35);
-  border-radius: 12px; padding: 4px 7px 4px 5px;
+  border-radius: 12px; padding: 5px clamp(5px, 1.6vw, 10px);
   display: grid; grid-template-areas: "icon name" "icon cost";
-  column-gap: 4px; align-items: center; justify-items: start;
+  grid-template-columns: auto auto;
+  column-gap: clamp(3px, 1.2vw, 7px); align-items: center;
+  justify-items: start; justify-content: center;
   cursor: grab; box-shadow: 0 2px 0 rgba(0,0,0,.22);
   touch-action: none; position: relative;
+  flex: 1; min-width: 0; max-width: 142px;
 }
 .tray-piece .pname {
   grid-area: name; align-self: end;
-  font-size: .47rem; font-weight: 800; text-transform: uppercase;
+  font-size: clamp(.44rem, 1.7vw, .58rem); font-weight: 800; text-transform: uppercase;
   letter-spacing: .03em; color: #7a6a52; white-space: nowrap; line-height: 1.1;
   margin-right: 7px;
 }
 .tray-piece > svg {
-  grid-area: icon; width: 25px; height: 23px;
+  grid-area: icon; width: clamp(24px, 8vw, 33px); height: clamp(22px, 7.4vw, 30px);
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
 }
 .tray-piece .cost {
   grid-area: cost; align-self: start;
   display: flex; gap: 2px; align-items: center;
   background: rgba(74, 56, 38, .1); border-radius: 999px;
-  padding: 1px 4px; line-height: 1; min-height: 14px;
+  padding: 1px 5px; line-height: 1; min-height: 15px;
 }
-.tray-piece .cost b { font-size: .56rem; font-weight: 800; color: #5a4530; }
-.tray-piece .cost svg { width: 11px; height: 11px; filter: none; }
+.tray-piece .cost b { font-size: clamp(.52rem, 1.9vw, .64rem); font-weight: 800; color: #5a4530; }
+.tray-piece .cost svg { width: clamp(10px, 3.4vw, 13px); height: clamp(10px, 3.4vw, 13px); filter: none; }
 .tray-piece .left {
   position: absolute; top: -8px; right: -8px; background: var(--panel-dark); color: #fff;
-  border-radius: 999px; min-width: 17px; height: 17px; display: grid; place-items: center;
-  font-size: .6rem; font-weight: 700; padding: 0 4px;
+  border-radius: 999px; min-width: 18px; height: 18px; display: grid; place-items: center;
+  font-size: .62rem; font-weight: 700; padding: 0 4px;
   border: 1.5px solid rgba(255,255,255,.55);
 }
 .tray-piece.disabled { opacity: .45; cursor: default; }
@@ -436,8 +445,13 @@ html, body {
 
 /* landscape tweak */
 @media (orientation: landscape) and (max-height: 520px) {
-  #bottombar { display: flex; gap: 12px; align-items: center; }
-  #hand { margin-bottom: 0; }
+  #bottombar { display: flex; gap: 10px; align-items: center; justify-content: center; }
+  #hand, #build-row { margin-bottom: 0; }
+  #build-row { flex: none; }
+  .tray-piece { flex: none; max-width: none; }
+  .tray-piece > svg { width: 26px; height: 24px; }
+  .tray-piece .cost svg { width: 11px; height: 11px; }
+  .tray-piece .pname { font-size: .47rem; }
   #toast-area { bottom: 110px; }
   #log-panel { bottom: 100px; }
 }

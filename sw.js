@@ -1,5 +1,5 @@
 // Service worker: precache the app shell so the game works fully offline.
-const CACHE = 'settlers-v5';
+const CACHE = 'settlers-v6';
 const ASSETS = [
   '.',
   'index.html',
