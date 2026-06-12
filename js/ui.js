@@ -56,10 +56,11 @@ function buildBoardSvg() {
   const svg = $('board');
   svg.innerHTML = '';
 
-  // viewBox from board extents (+ margin for harbors)
+  // viewBox from board extents (+ margin for harbors, kept tight so the
+  // island fills the screen and the page background provides the open sea)
   const xs = [], ys = [];
   for (const v of S.board.vertices) { xs.push(v.x); ys.push(v.y); }
-  const m = HEX_SIZE * 1.15;
+  const m = HEX_SIZE * 0.82;
   const minX = Math.min(...xs) - m, maxX = Math.max(...xs) + m;
   const minY = Math.min(...ys) - m, maxY = Math.max(...ys) + m;
   svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
@@ -116,7 +117,7 @@ function buildBoardSvg() {
     const v2 = S.board.vertices[h.vertices[1]];
     const mx = (v1.x + v2.x) / 2, my = (v1.y + v2.y) / 2;
     const len = Math.hypot(mx, my) || 1;
-    const ox = mx + (mx / len) * 30, oy = my + (my / len) * 30;
+    const ox = mx + (mx / len) * 25, oy = my + (my / len) * 25;
     const g = el('g', { class: 'harbor' }, layers.harbors);
     el('line', { x1: ox, y1: oy, x2: v1.x, y2: v1.y }, g);
     el('line', { x1: ox, y1: oy, x2: v2.x, y2: v2.y }, g);

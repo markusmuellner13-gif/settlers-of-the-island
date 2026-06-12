@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Settlers of the Island</title>
   <meta name="description" content="A faithful mobile adaptation of the classic settlement-building board game. Play solo against the computer or pass-and-play with friends." />
-  <meta name="theme-color" content="#0e3a5c" />
+  <meta name="theme-color" content="#14608d" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -76,7 +76,8 @@
 
     <footer id="bottombar">
       <div id="hand"></div>
-      <div id="build-tray">
+      <div id="actions">
+        <button id="btn-roll" class="btn primary">🎲 Roll</button>
         <div class="tray-piece" id="tray-road" data-piece="road" title="Drag a road onto the board (or tap, then tap a glowing spot)">
           <span class="pname">Road</span>
           <svg viewBox="0 0 40 40"></svg>
@@ -92,9 +93,6 @@
           <svg viewBox="0 0 40 40"></svg>
           <span class="cost" data-cost="grain,grain,ore,ore,ore"></span><span class="left" title="Pieces left in your supply"></span>
         </div>
-      </div>
-      <div id="actions">
-        <button id="btn-roll" class="btn primary">🎲 Roll</button>
         <button id="btn-dev" class="btn">🃏 Dev</button>
         <button id="btn-trade" class="btn">⚖️ Trade</button>
         <button id="btn-end" class="btn warn">End Turn</button>
