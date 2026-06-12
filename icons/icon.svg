@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="sea" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#2a85ba"/>
+      <stop offset="100%" stop-color="#0e3a5c"/>
+    </radialGradient>
+    <linearGradient id="hexg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0c84a"/>
+      <stop offset="100%" stop-color="#d99a26"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e25c4a"/>
+      <stop offset="100%" stop-color="#b93a2b"/>
+    </linearGradient>
+  </defs>
+  <!-- background -->
+  <rect width="512" height="512" rx="108" fill="url(#sea)"/>
+  <!-- subtle waves -->
+  <g stroke="#ffffff" stroke-opacity=".12" stroke-width="10" fill="none" stroke-linecap="round">
+    <path d="M60 420 q 40 -18 80 0 t 80 0"/>
+    <path d="M300 444 q 40 -18 80 0 t 60 0"/>
+    <path d="M90 86 q 40 -18 80 0 t 80 0"/>
+  </g>
+  <!-- sand base hex -->
+  <polygon points="256,60 424,157 424,351 256,448 88,351 88,157" fill="#e8d5a3"/>
+  <!-- golden field hex -->
+  <polygon points="256,84 403,169 403,339 256,424 109,339 109,169"
+           fill="url(#hexg)" stroke="#8a5a14" stroke-width="10" stroke-linejoin="round"/>
+  <!-- settlement -->
+  <g>
+    <path d="M256 138 L356 226 L356 352 L156 352 L156 226 Z" fill="#fdf6e3" stroke="#7a4a12" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M256 130 L368 230 L144 230 Z" fill="url(#roof)" stroke="#7a2a1d" stroke-width="12" stroke-linejoin="round"/>
+    <rect x="232" y="280" width="48" height="72" rx="6" fill="#7a4a12"/>
+  </g>
+  <!-- number token -->
+  <circle cx="376" cy="356" r="58" fill="#f3e3bd" stroke="#8a5a14" stroke-width="10"/>
+  <text x="376" y="376" font-family="Georgia, serif" font-size="64" font-weight="bold"
+        text-anchor="middle" fill="#b8312f">8</text>
+  <circle cx="350" cy="394" r="5" fill="#b8312f"/>
+  <circle cx="363" cy="394" r="5" fill="#b8312f"/>
+  <circle cx="376" cy="394" r="5" fill="#b8312f"/>
+  <circle cx="389" cy="394" r="5" fill="#b8312f"/>
+  <circle cx="402" cy="394" r="5" fill="#b8312f"/>
+</svg>
