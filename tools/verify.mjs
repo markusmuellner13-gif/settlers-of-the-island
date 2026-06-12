@@ -28,7 +28,7 @@ await new Promise((r) => server.listen(8377, r));
 console.log('server on :8377');
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } }); // iPhone-ish portrait
+const page = await browser.newPage({ viewport: { width: 390, height: 844 }, ignoreHTTPSErrors: true }); // iPhone-ish portrait
 
 const consoleErrors = [];
 page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
