@@ -359,13 +359,15 @@ function renderHand() {
     card.className = 'rescard';
     card.style.background = RESOURCE_INFO[r].color;
     card.style.opacity = n === 0 ? '0.35' : '1';
-    card.innerHTML = `<span class="ic">${resIcon(r, 28)}</span><span class="ct">${showFull ? n : '?'}</span>`;
+    card.title = RESOURCE_INFO[r].name;
+    card.innerHTML = `<span class="ic">${resIcon(r, 26)}</span><span class="nm">${RESOURCE_INFO[r].name}</span><span class="ct">${showFull ? n : '?'}</span>`;
     hand.appendChild(card);
   }
   const dev = document.createElement('div');
   dev.className = 'rescard';
   dev.style.background = '#5e35b1';
-  dev.innerHTML = `<span class="ic">${resIcon('dev', 28)}</span><span class="ct">${showFull ? p.devCards.length : '?'}</span>`;
+  dev.title = 'Development cards';
+  dev.innerHTML = `<span class="ic">${resIcon('dev', 26)}</span><span class="nm">Dev</span><span class="ct">${showFull ? p.devCards.length : '?'}</span>`;
   hand.appendChild(dev);
 }
 
@@ -1165,11 +1167,16 @@ function exitGame() {
 // ============================================================
 export function initUI() {
   // Fill the build tray with piece artwork and cost icons.
+  // Costs are grouped per resource ("2×grain 3×ore") so they always fit the card.
   for (const piece of ['road', 'settlement', 'city']) {
     const tray = $('tray-' + piece);
     tray.querySelector('svg').innerHTML = PIECE_INNER[piece];
     const costEl = tray.querySelector('.cost');
-    costEl.innerHTML = costEl.dataset.cost.split(',').map((r) => resIcon(r, 11)).join('');
+    const counts = {};
+    for (const r of costEl.dataset.cost.split(',')) counts[r] = (counts[r] || 0) + 1;
+    costEl.innerHTML = Object.entries(counts)
+      .map(([r, n]) => `${n > 1 ? `<b>${n}×</b>` : ''}${resIcon(r, 14)}`)
+      .join('');
   }
 
   buildDieCube($('die1'));

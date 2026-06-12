@@ -76,20 +76,25 @@
 
     <footer id="bottombar">
       <div id="hand"></div>
+      <div id="build-tray">
+        <div class="tray-piece" id="tray-road" data-piece="road" title="Drag a road onto the board (or tap, then tap a glowing spot)">
+          <span class="pname">Road</span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="brick,lumber"></span><span class="left" title="Pieces left in your supply"></span>
+        </div>
+        <div class="tray-piece" id="tray-settlement" data-piece="settlement" title="Drag a settlement onto the board (or tap, then tap a glowing spot)">
+          <span class="pname">Settlement</span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="brick,lumber,wool,grain"></span><span class="left" title="Pieces left in your supply"></span>
+        </div>
+        <div class="tray-piece" id="tray-city" data-piece="city" title="Drag a city onto one of your settlements to upgrade it">
+          <span class="pname">City</span>
+          <svg viewBox="0 0 40 40"></svg>
+          <span class="cost" data-cost="grain,grain,ore,ore,ore"></span><span class="left" title="Pieces left in your supply"></span>
+        </div>
+      </div>
       <div id="actions">
         <button id="btn-roll" class="btn primary">🎲 Roll</button>
-        <div class="tray-piece" id="tray-road" data-piece="road" title="Drag a road onto the board">
-          <svg viewBox="0 0 40 40"></svg>
-          <span class="cost" data-cost="brick,lumber"></span><span class="left"></span>
-        </div>
-        <div class="tray-piece" id="tray-settlement" data-piece="settlement" title="Drag a settlement onto the board">
-          <svg viewBox="0 0 40 40"></svg>
-          <span class="cost" data-cost="brick,lumber,wool,grain"></span><span class="left"></span>
-        </div>
-        <div class="tray-piece" id="tray-city" data-piece="city" title="Drag a city onto a settlement">
-          <svg viewBox="0 0 40 40"></svg>
-          <span class="cost" data-cost="grain,grain,ore,ore,ore"></span><span class="left"></span>
-        </div>
         <button id="btn-dev" class="btn">🃏 Dev</button>
         <button id="btn-trade" class="btn">⚖️ Trade</button>
         <button id="btn-end" class="btn warn">End Turn</button>
