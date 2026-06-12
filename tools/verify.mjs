@@ -11,6 +11,8 @@ const MIME = {
   '.webmanifest': 'application/manifest+json', '.json': 'application/json',
 };
 
+const TARGET = process.argv[2] || null; // optional: verify a deployed URL instead of local
+
 const server = http.createServer(async (req, res) => {
   let p = req.url.split('?')[0];
   if (p === '/') p = '/index.html';
@@ -34,7 +36,7 @@ page.on('pageerror', (e) => consoleErrors.push('PAGEERROR: ' + e.message));
 
 const step = (name, ok, extra = '') => console.log(`${ok ? 'OK ' : 'FAIL'} ${name}${extra ? ' — ' + extra : ''}`);
 
-await page.goto('http://localhost:8377/');
+await page.goto(TARGET || 'http://localhost:8377/');
 await page.waitForTimeout(800);
 await page.screenshot({ path: 'tools/shots/01-menu.png' });
 step('menu loads', await page.isVisible('#btn-start'));

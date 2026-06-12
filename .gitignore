@@ -2,3 +2,5 @@ node_modules/
 tools/shots/
 .vercel/
 .DS_Store
+
+.vercel
