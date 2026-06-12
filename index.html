@@ -15,6 +15,29 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <!-- Loading screen (pure HTML/CSS so it appears before any JS runs) -->
+  <div id="loading">
+    <svg class="load-board" viewBox="-105 -105 210 210" aria-hidden="true">
+      <g stroke-linejoin="round">
+        <g><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#e2b33b" style="animation-delay:.05s"/></g>
+        <g transform="translate(52 0)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#2e6b30" style="animation-delay:.17s"/></g>
+        <g transform="translate(26 45)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#8fc15c" style="animation-delay:.29s"/></g>
+        <g transform="translate(-26 45)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#b5562e" style="animation-delay:.41s"/></g>
+        <g transform="translate(-52 0)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#8a8f99" style="animation-delay:.53s"/></g>
+        <g transform="translate(-26 -45)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#d9c789" style="animation-delay:.65s"/></g>
+        <g transform="translate(26 -45)"><polygon class="lhex" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="#2e6b30" style="animation-delay:.77s"/></g>
+      </g>
+      <g class="ltoken">
+        <circle r="11" fill="#f3e3bd" stroke="#a98c54" stroke-width="1.6"/>
+        <text y="4.5" text-anchor="middle" font-size="13" font-weight="800" fill="#c0392b">8</text>
+      </g>
+      <circle class="lshine" r="93"/>
+    </svg>
+    <h1>Settlers of the Island</h1>
+    <div class="load-sub">Charting the island&hellip;</div>
+    <div class="load-dots"><span></span><span></span><span></span></div>
+  </div>
+
   <!-- Start menu -->
   <div id="menu" class="screen">
     <div class="menu-card">

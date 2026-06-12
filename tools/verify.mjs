@@ -37,9 +37,13 @@ page.on('pageerror', (e) => consoleErrors.push('PAGEERROR: ' + e.message));
 const step = (name, ok, extra = '') => console.log(`${ok ? 'OK ' : 'FAIL'} ${name}${extra ? ' — ' + extra : ''}`);
 
 await page.goto(TARGET || 'http://localhost:8377/');
-await page.waitForTimeout(800);
+await page.waitForTimeout(600);
+await page.screenshot({ path: 'tools/shots/00-loading.png' });
+step('loading screen shows', await page.isVisible('#loading'));
+await page.waitForTimeout(1800); // loading screen dismisses itself
 await page.screenshot({ path: 'tools/shots/01-menu.png' });
 step('menu loads', await page.isVisible('#btn-start'));
+step('loading screen dismissed', !(await page.isVisible('#loading')));
 
 // configure: seat 4 ON as AI (cycle off->human->ai) to test 4 players? keep default 3 (1 human + 2 AI)
 await page.click('#btn-start');
@@ -114,9 +118,9 @@ if (rollEnabled) {
   await page.click('#btn-roll');
   await page.waitForTimeout(900);
   await page.screenshot({ path: 'tools/shots/06-dice.png' });
-  await page.waitForTimeout(1300);
-  const diceShown = await page.locator('#die1').textContent();
-  step('dice rolled', /^[1-6]$/.test(diceShown), `die1=${diceShown}`);
+  await page.waitForTimeout(1700);
+  const diceShown = await page.locator('#die1').getAttribute('data-value');
+  step('dice rolled (3D cube landed)', /^[1-6]$/.test(diceShown ?? ''), `die1=${diceShown}`);
 
   // Either main phase (End enabled) or a 7 happened (robber flow)
   await page.waitForTimeout(800);

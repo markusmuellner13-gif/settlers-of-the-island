@@ -5,15 +5,15 @@ import { HEX_SIZE } from './board.js';
 import * as G from './game.js';
 import * as AI from './ai.js';
 import { sfx } from './sfx.js';
-import { ICON_INNER, PIECE_INNER, TERRAIN_ART, resIcon, pieceIcon } from './icons.js';
+import { ICON_INNER, PIECE_INNER, TERRAIN_ART, BOARD_DEFS, SEA_DECOR, resIcon, pieceIcon } from './icons.js';
 
 const TERRAIN_STYLE = {
-  hills: { fill: '#b5562e', name: 'Hills' },
-  forest: { fill: '#2e6b30', name: 'Forest' },
-  pasture: { fill: '#8fc15c', name: 'Pasture' },
-  fields: { fill: '#e2b33b', name: 'Fields' },
-  mountains: { fill: '#8a8f99', name: 'Mountains' },
-  desert: { fill: '#d9c789', name: 'Desert' },
+  hills: { fill: 'url(#hexg-hills)', name: 'Hills' },
+  forest: { fill: 'url(#hexg-forest)', name: 'Forest' },
+  pasture: { fill: 'url(#hexg-pasture)', name: 'Pasture' },
+  fields: { fill: 'url(#hexg-fields)', name: 'Fields' },
+  mountains: { fill: 'url(#hexg-mountains)', name: 'Mountains' },
+  desert: { fill: 'url(#hexg-desert)', name: 'Desert' },
 };
 
 let S = null;            // game state
@@ -64,16 +64,22 @@ function buildBoardSvg() {
   const minY = Math.min(...ys) - m, maxY = Math.max(...ys) + m;
   svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
 
+  const defs = el('defs', {}, svg);
+  defs.innerHTML = BOARD_DEFS;
+
   layers = {};
   for (const name of ['sea', 'tiles', 'harbors', 'tokens', 'roads', 'spots', 'buildings', 'robber']) {
     layers[name] = el('g', { id: 'layer-' + name }, svg);
   }
 
+  // decorative open sea: waves, a ship, a compass rose, fish & gulls
+  drawSeaDecor(minX, minY, maxX, maxY);
+
   // island base (sand ring behind tiles)
   for (const t of S.board.tiles) {
     el('polygon', {
-      points: hexPointsStr(t, 1.13),
-      fill: '#e8d5a3', stroke: 'none', opacity: 0.95,
+      points: hexPointsStr(t, 1.16),
+      fill: 'url(#sandGrad)', stroke: '#b89858', 'stroke-width': 1.2, opacity: 0.97,
     }, layers.sea);
   }
 
@@ -82,8 +88,9 @@ function buildBoardSvg() {
     const g = el('g', { class: 'hex-group', 'data-tile': t.id }, layers.tiles);
     const st = TERRAIN_STYLE[t.terrain];
     el('polygon', { points: hexPointsStr(t, 1), class: 'hex', fill: st.fill }, g);
-    // subtle top highlight
-    el('polygon', { points: hexPointsStr(t, 0.86), fill: 'rgba(255,255,255,.07)', stroke: 'none' }, g);
+    // soft inner rim: light on top, shaded near the edge for a tactile tile look
+    el('polygon', { points: hexPointsStr(t, 0.93), fill: 'none', stroke: 'rgba(255,255,255,.14)', 'stroke-width': 3 }, g);
+    el('polygon', { points: hexPointsStr(t, 0.99), fill: 'none', stroke: 'rgba(0,0,0,.18)', 'stroke-width': 2 }, g);
     // terrain scenery (trees, peaks, dunes, …)
     const art = el('g', {
       transform: `translate(${t.center.x} ${t.center.y})`,
@@ -124,7 +131,12 @@ function buildBoardSvg() {
   for (const t of S.board.tiles) {
     if (!t.number) continue;
     const g = el('g', { class: 'token' + (t.number === 6 || t.number === 8 ? ' hot' : ''), 'data-token': t.id }, layers.tokens);
+    el('ellipse', { cx: t.center.x, cy: t.center.y + 10.5, rx: 16.5, ry: 14, fill: 'rgba(0,0,0,.25)', stroke: 'none' }, g);
     el('circle', { cx: t.center.x, cy: t.center.y + 8, r: 17 }, g);
+    el('circle', {
+      cx: t.center.x, cy: t.center.y + 8, r: 14.2,
+      fill: 'none', stroke: 'rgba(122,90,43,.4)', 'stroke-width': 1, 'stroke-dasharray': '2.4 3',
+    }, g);
     const num = el('text', { x: t.center.x, y: t.center.y + 13, class: 'num', 'font-size': 16 }, g);
     num.textContent = t.number;
     const pips = el('text', { x: t.center.x, y: t.center.y + 22, class: 'pips' }, g);
@@ -133,6 +145,36 @@ function buildBoardSvg() {
   }
 
   renderDynamic();
+}
+
+// Scatter decorative elements on the open water inside the board's viewBox.
+function drawSeaDecor(minX, minY, maxX, maxY) {
+  const sea = layers.sea;
+  const put = (inner, x, y, scale = 1, extra = '') => {
+    const g = el('g', {
+      class: 'sea-decor',
+      transform: `translate(${x} ${y}) scale(${scale}) ${extra}`,
+      style: 'pointer-events:none',
+    }, sea);
+    g.innerHTML = inner;
+    return g;
+  };
+  // corners of the hexagonal island leave open water at the viewBox corners
+  put(SEA_DECOR.compass, maxX - 52, minY + 52, 1);
+  put(SEA_DECOR.ship, minX + 56, maxY - 64, 1.05);
+  put(SEA_DECOR.gulls, minX + 60, minY + 46, 1);
+  put(SEA_DECOR.fish, maxX - 62, maxY - 52, 1);
+  put(SEA_DECOR.fish, maxX - 84, maxY - 40, 0.7, 'scale(-1 1)');
+  // gentle waves ringing the island
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const R = Math.min(maxX - cx, maxY - cy) * 0.94;
+  for (let i = 0; i < 12; i++) {
+    const a = (Math.PI * 2 * i) / 12 + 0.26;
+    const r = R * (0.96 + 0.1 * ((i % 3) - 1) * 0.3);
+    const w = put(SEA_DECOR.wave, cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.96, 0.8 + (i % 3) * 0.18);
+    w.style.opacity = '0.4';
+    w.style.setProperty('--wd', `${(i % 5) * 0.7}s`);
+  }
 }
 
 function hexPointsStr(tile, scale) {
@@ -159,9 +201,14 @@ function renderDynamic() {
   layers.robber.innerHTML = '';
   const rt = S.board.tiles[S.board.robberTile];
   const rg = el('g', { class: 'robber', style: 'pointer-events:none' }, layers.robber);
+  el('ellipse', { cx: rt.center.x, cy: rt.center.y + 26.5, rx: 11, ry: 2.4, fill: '#000', opacity: 0.3 }, rg);
   el('path', {
     d: `M ${rt.center.x - 9} ${rt.center.y + 26} q 0 -12 5 -16 a 7 7 0 1 1 8 0 q 5 4 5 16 z`,
     fill: '#26211c', stroke: '#000', 'stroke-width': 1,
+  }, rg);
+  el('path', {
+    d: `M ${rt.center.x - 6.5} ${rt.center.y + 24} q .5 -9 4 -13`,
+    fill: 'none', stroke: '#5a5248', 'stroke-width': 1.6, 'stroke-linecap': 'round', opacity: 0.8,
   }, rg);
 }
 
@@ -175,8 +222,13 @@ function drawRoad(eid, color, parent, ghost = false) {
     class: 'piece' + (ghost ? ' ghost' : ' pop'),
     transform: `translate(${mx},${my}) rotate(${ang})`,
   }, parent);
-  el('rect', { x: -len / 2, y: -4.5, width: len, height: 9, rx: 3, fill: color }, g);
-  el('rect', { x: -len / 2 + 1.6, y: -3.2, width: len - 3.2, height: 2.6, rx: 1.3, fill: '#fff', opacity: 0.3, stroke: 'none' }, g);
+  el('rect', { x: -len / 2, y: -4.5, width: len, height: 9, rx: 3, fill: color, stroke: 'rgba(0,0,0,.45)', 'stroke-width': 1.5 }, g);
+  el('rect', { x: -len / 2 + 1.6, y: -3.4, width: len - 3.2, height: 2.6, rx: 1.3, fill: '#fff', opacity: 0.32, stroke: 'none' }, g);
+  el('rect', { x: -len / 2 + 1.6, y: 1.6, width: len - 3.2, height: 1.8, rx: 0.9, fill: '#000', opacity: 0.2, stroke: 'none' }, g);
+  el('path', {
+    d: `M ${-len / 6} -4 v 8 M ${len / 6} -4 v 8`,
+    stroke: 'rgba(0,0,0,.18)', 'stroke-width': 1, fill: 'none',
+  }, g);
   return g;
 }
 
@@ -187,17 +239,27 @@ function drawBuilding(vid, type, color, parent, ghost = false) {
     transform: `translate(${v.x},${v.y})`,
   }, parent);
   if (type === 'settlement') {
-    el('path', { d: 'M 0 -13 L 10 -4 L 10 10 L -10 10 L -10 -4 Z', fill: color }, g);
-    el('path', { d: 'M 0 -13 L 10 -4 L -10 -4 Z', fill: '#000', opacity: 0.22, stroke: 'none' }, g);
-    el('rect', { x: -2.6, y: 3, width: 5.2, height: 7, rx: 1, fill: '#000', opacity: 0.32, stroke: 'none' }, g);
-    el('rect', { x: -8.7, y: -2.8, width: 2, height: 11.5, fill: '#fff', opacity: 0.18, stroke: 'none' }, g);
+    el('ellipse', { cx: 0, cy: 10.6, rx: 11.5, ry: 2.2, fill: '#000', opacity: 0.25, stroke: 'none' }, g);
+    el('path', { d: 'M 0 -13 L 10 -4 L 10 10 L -10 10 L -10 -4 Z', fill: color, stroke: 'rgba(0,0,0,.45)', 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, g);
+    el('path', { d: 'M 0 -13 L 10 -4 L -10 -4 Z', fill: '#000', opacity: 0.28, stroke: 'none' }, g);
+    el('path', { d: 'M 0 -13 L 10 -4 L 8.2 -4 L 0 -11.2 L -8.2 -4 L -10 -4 Z', fill: '#fff', opacity: 0.3, stroke: 'none' }, g);
+    el('rect', { x: 4, y: -11.2, width: 2.6, height: 5, rx: 0.6, fill: '#000', opacity: 0.38, stroke: 'none' }, g);
+    el('rect', { x: -2.4, y: 3.4, width: 4.8, height: 6.6, rx: 0.9, fill: '#2c1f10', opacity: 0.85, stroke: 'none' }, g);
+    el('rect', { x: -7.6, y: -1.4, width: 4.4, height: 4, rx: 0.6, fill: '#ffe9a8', stroke: 'rgba(0,0,0,.4)', 'stroke-width': 0.7 }, g);
+    el('rect', { x: 3.2, y: -1.4, width: 4.4, height: 4, rx: 0.6, fill: '#ffe9a8', stroke: 'rgba(0,0,0,.4)', 'stroke-width': 0.7 }, g);
+    el('rect', { x: -9.2, y: -2.8, width: 1.6, height: 12, fill: '#fff', opacity: 0.18, stroke: 'none' }, g);
   } else {
-    el('path', { d: 'M -13 12 L -13 -2 L -4 -2 L -4 -10 L 3 -16 L 10 -10 L 10 -2 L 13 -2 L 13 12 Z', fill: color }, g);
-    el('path', { d: 'M -4 -10 L 3 -16 L 10 -10 Z', fill: '#000', opacity: 0.26, stroke: 'none' }, g);
-    el('rect', { x: 0.6, y: -8, width: 4.8, height: 4.8, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
-    el('rect', { x: -9.8, y: 3.5, width: 4.4, height: 4.6, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
-    el('rect', { x: 5.4, y: 3.5, width: 4.4, height: 4.6, rx: 0.8, fill: '#000', opacity: 0.3, stroke: 'none' }, g);
-    el('rect', { x: -11.9, y: -0.8, width: 1.8, height: 11.6, fill: '#fff', opacity: 0.16, stroke: 'none' }, g);
+    el('ellipse', { cx: 0, cy: 12.4, rx: 14.5, ry: 2.4, fill: '#000', opacity: 0.25, stroke: 'none' }, g);
+    el('path', { d: 'M -13 12 L -13 -2 L -4 -2 L -4 -10 L 3 -16 L 10 -10 L 10 -2 L 13 -2 L 13 12 Z', fill: color, stroke: 'rgba(0,0,0,.45)', 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, g);
+    el('path', { d: 'M -4 -10 L 3 -16 L 10 -10 Z', fill: '#000', opacity: 0.3, stroke: 'none' }, g);
+    el('path', { d: 'M -4 -10 L 3 -16 L 4.6 -14.9 L -2.2 -10 Z', fill: '#fff', opacity: 0.3, stroke: 'none' }, g);
+    el('path', { d: 'M 10 -2 L 13 -2 L 13 0 L 10 0 Z', fill: '#000', opacity: 0.18, stroke: 'none' }, g);
+    el('path', { d: 'M 3 -16.2 V -19.6 L 7 -18.4 L 3 -17.2', fill: '#c0392b', stroke: '#c0392b', 'stroke-width': 1, 'stroke-linejoin': 'round' }, g);
+    el('rect', { x: 0.6, y: -8.4, width: 4.6, height: 4.4, rx: 0.7, fill: '#ffe9a8', stroke: 'rgba(0,0,0,.4)', 'stroke-width': 0.7 }, g);
+    el('rect', { x: -10.2, y: 1.5, width: 4.2, height: 4.2, rx: 0.7, fill: '#ffe9a8', stroke: 'rgba(0,0,0,.4)', 'stroke-width': 0.7 }, g);
+    el('rect', { x: 6, y: 1.5, width: 4.2, height: 4.2, rx: 0.7, fill: '#ffe9a8', stroke: 'rgba(0,0,0,.4)', 'stroke-width': 0.7 }, g);
+    el('rect', { x: -2.4, y: 4.4, width: 4.8, height: 7.6, rx: 2, fill: '#2c1f10', opacity: 0.85, stroke: 'none' }, g);
+    el('rect', { x: -12.2, y: -0.8, width: 1.6, height: 12, fill: '#fff', opacity: 0.16, stroke: 'none' }, g);
   }
   return g;
 }
@@ -522,20 +584,57 @@ function applyAIAction(p, a) {
   }
 }
 
-// ---------- Dice ----------
+// ---------- Dice (real 3D tumbling cubes) ----------
+// Standard die layout: front=1, back=6, right=3, left=4, top=2, bottom=5.
+// Final cube rotation that brings each value to face the camera:
+const DIE_FACE_ROT = { 1: [0, 0], 2: [-90, 0], 3: [0, -90], 4: [0, 90], 5: [90, 0], 6: [0, 180] };
+const DIE_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+
+function buildDieCube(dieEl) {
+  const faceNames = { front: 1, back: 6, right: 3, left: 4, top: 2, bottom: 5 };
+  let html = '<div class="cube">';
+  for (const [side, value] of Object.entries(faceNames)) {
+    html += `<div class="face face-${side}">`;
+    for (const cell of DIE_PIPS[value]) {
+      html += `<span class="pip" style="grid-area:${Math.floor(cell / 3) + 1}/${(cell % 3) + 1}"></span>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  dieEl.innerHTML = html;
+}
+
+function spinDieTo(dieEl, value, dir) {
+  const cube = dieEl.querySelector('.cube');
+  dieEl.dataset.value = value;
+  const [fx, fy] = DIE_FACE_ROT[value];
+  // start from a random scrambled orientation with no transition…
+  cube.style.transition = 'none';
+  cube.style.transform =
+    `rotateX(${Math.random() * 360 - 180}deg) rotateY(${Math.random() * 360 - 180}deg) rotateZ(${Math.random() * 90 - 45}deg)`;
+  void cube.offsetWidth;
+  // …then tumble several full turns and settle on the rolled face
+  const tx = fx + 360 * (2 + Math.floor(Math.random() * 2)) * dir;
+  const ty = fy + 360 * (2 + Math.floor(Math.random() * 2)) * dir;
+  cube.style.transition = 'transform 1.05s cubic-bezier(.16,.85,.3,1.02)';
+  cube.style.transform = `rotateX(${tx}deg) rotateY(${ty}deg) rotateZ(0deg)`;
+}
+
 function doRoll() {
   const overlay = $('dice-overlay');
   const d1 = $('die1'), d2 = $('die2');
   overlay.classList.remove('hidden');
-  d1.textContent = '?'; d2.textContent = '?';
+  d1.classList.remove('rolling'); d2.classList.remove('rolling');
+  void d1.offsetWidth;
   d1.classList.add('rolling'); d2.classList.add('rolling');
   sfx.dice();
   const res = G.rollDice(S);
+  spinDieTo(d1, S.dice[0], 1);
+  spinDieTo(d2, S.dice[1], -1);
   setTimeout(() => {
-    d1.textContent = S.dice[0];
-    d2.textContent = S.dice[1];
     flashTokens(S.dice[0] + S.dice[1]);
-  }, 480);
+    sfx.tap();
+  }, 1080);
   setTimeout(() => {
     overlay.classList.add('hidden');
     d1.classList.remove('rolling'); d2.classList.remove('rolling');
@@ -545,7 +644,7 @@ function doRoll() {
     }
     if (res.robber) sfx.bad();
     advance();
-  }, 1500);
+  }, 2050);
 }
 
 function flashTokens(number) {
@@ -1072,6 +1171,9 @@ export function initUI() {
     const costEl = tray.querySelector('.cost');
     costEl.innerHTML = costEl.dataset.cost.split(',').map((r) => resIcon(r, 11)).join('');
   }
+
+  buildDieCube($('die1'));
+  buildDieCube($('die2'));
 
   initDrag();
 

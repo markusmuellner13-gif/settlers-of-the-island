@@ -30,7 +30,12 @@ export const sfx = {
   tap() { tone(420, 0.06, 'triangle', 0.12); },
   place() { tone(220, 0.1, 'triangle', 0.2); tone(330, 0.12, 'triangle', 0.14, 0.05); },
   tile() { tone(170 + Math.random() * 60, 0.09, 'triangle', 0.1); },
-  dice() { for (let i = 0; i < 5; i++) tone(140 + Math.random() * 180, 0.05, 'square', 0.06, i * 0.07); },
+  dice() {
+    // rattle while the cubes tumble (~1s), then a landing knock
+    for (let i = 0; i < 9; i++) tone(120 + Math.random() * 220, 0.045, 'square', 0.07 - i * 0.004, i * 0.1);
+    tone(95, 0.12, 'sine', 0.16, 1.0);
+    tone(180, 0.06, 'triangle', 0.1, 1.02);
+  },
   card() { tone(620, 0.08, 'sine', 0.12); tone(820, 0.1, 'sine', 0.1, 0.06); },
   rob() { tone(160, 0.25, 'sawtooth', 0.12); tone(120, 0.3, 'sawtooth', 0.1, 0.1); },
   bad() { tone(200, 0.15, 'square', 0.08); tone(150, 0.2, 'square', 0.08, 0.1); },

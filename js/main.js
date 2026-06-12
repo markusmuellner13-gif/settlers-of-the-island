@@ -58,6 +58,17 @@ function start() {
   startGame(state, renderMenu);
 }
 
+function dismissLoading() {
+  const loader = $('loading');
+  if (!loader) return;
+  // Keep the loading vignette up long enough for its little board to assemble.
+  setTimeout(() => {
+    loader.classList.add('done');
+    setTimeout(() => loader.remove(), 650);
+  }, 1400);
+}
+
 initUI();
 renderMenu();
+dismissLoading();
 $('btn-start').addEventListener('click', start);
